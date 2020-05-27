@@ -212,6 +212,29 @@ class TVDB {
     }
 
     /**
+	 * Retrieves Updates From Minutes Ago (max 7 days in the past)
+	 *
+	 * @param integer $from_minutes_ago
+	 * @throws Exceptions\TVDBUnauthorizedException
+	 * @throws Exceptions\TVDBNotFoundException
+	 *
+	 * @return UpdateCollection
+	 */
+	public static function getUpdates($from_minutes_ago) {
+		$from_time = time() - ($from_minutes_ago * 60);
+		$response = self::request([
+			'method'    => 'GET',
+			'url'       => self::apiURL('/updated/query?fromTime=' . $from_time),
+			'auth'      => true,
+			'name'      => 'get_episode'
+		]);
+
+		if(!$response->isSuccessful()) $response->throwException();
+
+		return new Updates($response->json()->data);
+	}
+    
+    /**
      * Returns a valid TVDB token to use for authentication
      *
      * @return null
